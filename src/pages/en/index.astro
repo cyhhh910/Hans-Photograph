@@ -1,23 +1,20 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import { getAllPhotos } from '../lib/sanity';
-import { getLocalizedPhotoText } from '../lib/i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import { getAllPhotos } from '../../lib/sanity';
+import { getLocalizedPhotoText } from '../../lib/i18n';
 
 const photos = await getAllPhotos();
 const featured = photos.filter((item) => item.isFeatured).concat(photos).slice(0, 5);
-const lang = 'zh';
+const lang = 'en';
 ---
 
-<BaseLayout
-  title={lang === 'zh' ? 'Hans Cao 摄影' : 'Hans Cao Photograph'}
-  description="Minimal portfolio website for Hans Cao's photography works."
->
+<BaseLayout title="Hans Cao Photograph" description="Minimal portfolio website for Hans Cao's photography works.">
   <SiteHeader lang={lang} />
   <main class="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl grid-cols-1 gap-14 px-6 py-16 lg:grid-cols-2 lg:px-10">
     <section class="flex flex-col justify-center">
       <p class="mb-8 inline-flex w-fit rounded-full border border-zinc-200 px-4 py-1 text-xs uppercase tracking-[0.26em] text-zinc-400">
-        {lang === 'zh' ? '始于 2026' : 'Established 2026'}
+        Established 2026
       </p>
       <h1
         class="max-w-xl text-5xl font-black uppercase leading-[0.92] tracking-tight lg:text-7xl"
@@ -26,10 +23,10 @@ const lang = 'zh';
         Hans Cao Photograph
       </h1>
       <a
-        href="/works"
+        href="/en/works"
         class="mt-14 inline-flex w-fit items-center gap-4 text-xs uppercase tracking-[0.28em] text-zinc-500 transition hover:text-zinc-950"
       >
-        {lang === 'zh' ? '进入作品集' : 'Enter Gallery'}
+        Enter Gallery
         <span aria-hidden="true" class="h-px w-16 bg-zinc-300" />
       </a>
     </section>
@@ -40,7 +37,7 @@ const lang = 'zh';
           const text = getLocalizedPhotoText(photo, lang);
           return (
             <a
-              href={`/photo/${photo.slug}`}
+              href={`/en/photo/${photo.slug}`}
               class:list={[
                 'overflow-hidden bg-zinc-200',
                 index === 0 ? 'col-span-2' : '',

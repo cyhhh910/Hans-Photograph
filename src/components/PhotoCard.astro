@@ -1,26 +1,31 @@
 ---
 import type { PhotoItem } from '../types/photo';
+import type { Lang } from '../lib/i18n';
+import { getLocalizedPhotoText } from '../lib/i18n';
 
 type Props = {
   photo: PhotoItem;
+  lang?: Lang;
+  basePath?: string;
 };
 
-const { photo } = Astro.props;
+const { photo, lang = 'zh', basePath = '' } = Astro.props;
+const text = getLocalizedPhotoText(photo, lang);
 ---
 
 <article class="group break-inside-avoid">
-  <a href={`/photo/${photo.slug}`} class="block overflow-hidden rounded-sm bg-zinc-200">
+  <a href={`${basePath}/photo/${photo.slug}`} class="block overflow-hidden rounded-sm bg-zinc-200">
     <img
       src={photo.imageUrl}
-      alt={photo.title}
+      alt={text.title}
       loading="lazy"
       class="h-auto w-full transition duration-300 group-hover:scale-[1.01] group-hover:opacity-95"
     />
   </a>
   <div class="mt-3 flex items-start justify-between gap-4">
     <div>
-      <h3 class="text-base font-medium">{photo.title}</h3>
-      <p class="mt-1 text-xs uppercase tracking-[0.25em] text-zinc-500">{photo.location}</p>
+      <h3 class="text-base font-medium">{text.title}</h3>
+      <p class="mt-1 text-xs uppercase tracking-[0.25em] text-zinc-500">{text.location}</p>
     </div>
     <p class="text-xs text-zinc-500">{photo.capturedAt}</p>
   </div>

@@ -6,6 +6,8 @@ export const tagType = defineType({
   type: 'document',
   fields: [
     defineField({ name: 'name', title: 'Name', type: 'string', validation: (rule) => rule.required() }),
+    defineField({ name: 'nameZh', title: 'Name (ZH)', type: 'string' }),
+    defineField({ name: 'nameEn', title: 'Name (EN)', type: 'string' }),
     defineField({
       name: 'slug',
       title: 'Slug',

@@ -1,5 +1,5 @@
 import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 import groq from 'groq';
 import { mockPhotos } from '../data/mockPhotos';
 import type { PhotoItem, PhotoTag } from '../types/photo';
@@ -19,10 +19,12 @@ const client = canUseSanity
     })
   : null;
 
-const imageBuilder = client ? imageUrlBuilder(client) : null;
+const imageBuilder = client ? createImageUrlBuilder(client) : null;
 
 type SanityTag = {
   name: string;
+  nameZh?: string;
+  nameEn?: string;
   slug: string;
   group?: 'city' | 'subject' | 'mood';
 };
@@ -30,14 +32,22 @@ type SanityTag = {
 type SanityPhoto = {
   _id: string;
   title: string;
+  titleZh?: string;
+  titleEn?: string;
   slug: string;
   image: unknown;
   location: string;
+  locationZh?: string;
+  locationEn?: string;
   city: string;
+  cityZh?: string;
+  cityEn?: string;
   capturedAt: string;
   camera: string;
   lens?: string;
   description?: string;
+  descriptionZh?: string;
+  descriptionEn?: string;
   tags?: SanityTag[];
   isFeatured?: boolean;
   sortOrder?: number;
@@ -46,18 +56,28 @@ type SanityPhoto = {
 const photoQuery = groq`*[_type == "photo"] | order(sortOrder asc, capturedAt desc) {
   _id,
   title,
+  titleZh,
+  titleEn,
   "slug": slug.current,
   image,
   location,
+  locationZh,
+  locationEn,
   city,
+  cityZh,
+  cityEn,
   capturedAt,
   camera,
   lens,
   description,
+  descriptionZh,
+  descriptionEn,
   isFeatured,
   sortOrder,
   "tags": tags[]->{
     name,
+    nameZh,
+    nameEn,
     "slug": slug.current,
     group
   }
@@ -66,6 +86,8 @@ const photoQuery = groq`*[_type == "photo"] | order(sortOrder asc, capturedAt de
 function toTag(tag: SanityTag): PhotoTag {
   return {
     name: tag.name,
+    nameZh: tag.nameZh,
+    nameEn: tag.nameEn,
     slug: tag.slug,
     group: tag.group
   };
@@ -75,14 +97,22 @@ function toPhoto(doc: SanityPhoto): PhotoItem {
   return {
     _id: doc._id,
     title: doc.title,
+    titleZh: doc.titleZh,
+    titleEn: doc.titleEn,
     slug: doc.slug,
     imageUrl: imageBuilder?.image(doc.image).width(1400).quality(85).url() ?? '',
     location: doc.location,
+    locationZh: doc.locationZh,
+    locationEn: doc.locationEn,
     city: doc.city,
+    cityZh: doc.cityZh,
+    cityEn: doc.cityEn,
     capturedAt: doc.capturedAt,
     camera: doc.camera,
     lens: doc.lens,
     description: doc.description,
+    descriptionZh: doc.descriptionZh,
+    descriptionEn: doc.descriptionEn,
     tags: (doc.tags ?? []).map(toTag),
     isFeatured: doc.isFeatured,
     sortOrder: doc.sortOrder

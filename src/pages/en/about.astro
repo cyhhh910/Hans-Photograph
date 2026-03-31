@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+
+const lang = 'en';
+---
+
+<BaseLayout title="About | Hans Cao Photograph" description="About Hans Cao and this photography archive.">
+  <SiteHeader lang={lang} />
+  <main class="mx-auto max-w-4xl px-6 py-16 lg:px-10">
+    <h1 class="text-4xl font-semibold tracking-tight">About</h1>
+    <div class="mt-8 space-y-6 text-zinc-600">
+      <p>I am Hans Cao, and this site is my long-term photography archive. It follows city, street, and nature themes while collecting work from different years.</p>
+      <p>This site is built with Astro + TailwindCSS, uses Sanity for content management, and is deployed on Vercel. New photographs are published through the Sanity studio.</p>
+    </div>
+  </main>
+</BaseLayout>

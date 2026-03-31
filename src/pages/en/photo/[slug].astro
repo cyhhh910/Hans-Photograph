@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import SiteHeader from '../../components/SiteHeader.astro';
-import { getAllPhotos, getPhotoBySlug } from '../../lib/sanity';
-import { getLocalizedPhotoText, getLocalizedTagName } from '../../lib/i18n';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import { getAllPhotos, getPhotoBySlug } from '../../../lib/sanity';
+import { getLocalizedPhotoText, getLocalizedTagName } from '../../../lib/i18n';
 
 export async function getStaticPaths() {
   const photos = await getAllPhotos();
@@ -12,18 +12,17 @@ export async function getStaticPaths() {
 }
 
 const slug = Astro.params.slug ?? '';
-const lang = 'zh';
 const photo = await getPhotoBySlug(slug);
 
 if (!photo) {
-  return Astro.redirect('/works');
+  return Astro.redirect('/en/works');
 }
 
-const text = getLocalizedPhotoText(photo, lang);
+const text = getLocalizedPhotoText(photo, 'en');
 ---
 
 <BaseLayout title={`${text.title} | Hans Cao Photograph`} description={text.description || text.location}>
-  <SiteHeader lang={lang} />
+  <SiteHeader lang="en" />
   <main class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-10 lg:grid-cols-[1fr_320px] lg:px-10">
     <section class="flex min-h-[72vh] items-center justify-center bg-zinc-100 p-6 lg:p-10">
       <img src={photo.imageUrl} alt={text.title} class="max-h-[80vh] w-auto max-w-full object-contain" />
@@ -33,27 +32,25 @@ const text = getLocalizedPhotoText(photo, lang);
       <h1 class="text-3xl font-semibold tracking-tight">{text.title}</h1>
       <dl class="space-y-6 text-sm text-zinc-600">
         <div>
-          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">{lang === 'zh' ? '地点' : 'Location'}</dt>
+          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Location</dt>
           <dd class="mt-2">{text.location}</dd>
         </div>
         <div>
-          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">{lang === 'zh' ? '器材' : 'Equipment'}</dt>
+          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Equipment</dt>
           <dd class="mt-2">{photo.camera}{photo.lens ? ` / ${photo.lens}` : ''}</dd>
         </div>
         <div>
-          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">{lang === 'zh' ? '拍摄时间' : 'Captured On'}</dt>
+          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Captured On</dt>
           <dd class="mt-2">{photo.capturedAt}</dd>
         </div>
         <div>
-          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">{lang === 'zh' ? '标签' : 'Tags'}</dt>
+          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Tags</dt>
           <dd class="mt-2 flex flex-wrap gap-2">
-            {photo.tags.map((tag) => <span class="rounded border border-zinc-200 px-2 py-1 text-xs">{getLocalizedTagName(tag, lang)}</span>)}
+            {photo.tags.map((tag) => <span class="rounded border border-zinc-200 px-2 py-1 text-xs">{getLocalizedTagName(tag, 'en')}</span>)}
           </dd>
         </div>
       </dl>
-      <a href="/works" class="inline-flex text-sm text-zinc-500 transition hover:text-zinc-950">
-        {lang === 'zh' ? '返回作品页' : 'Back to works'}
-      </a>
+      <a href="/en/works" class="inline-flex text-sm text-zinc-500 transition hover:text-zinc-950">Back to works</a>
     </aside>
   </main>
 </BaseLayout>
