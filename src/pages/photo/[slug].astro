@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import { getAllPhotos, getPhotoBySlug } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+  const photos = await getAllPhotos();
+  return photos.map((photo) => ({
+    params: { slug: photo.slug }
+  }));
+}
+
+const slug = Astro.params.slug ?? '';
+const photo = await getPhotoBySlug(slug);
+
+if (!photo) {
+  return Astro.redirect('/works');
+}
+---
+
+<BaseLayout title={`${photo.title} | Hans Cao Photograph`} description={photo.description ?? photo.location}>
+  <SiteHeader />
+  <main class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-10 lg:grid-cols-[1fr_320px] lg:px-10">
+    <section class="flex min-h-[72vh] items-center justify-center bg-zinc-100 p-6 lg:p-10">
+      <img src={photo.imageUrl} alt={photo.title} class="max-h-[80vh] w-auto max-w-full object-contain" />
+    </section>
+
+    <aside class="space-y-8 border-l border-zinc-200 pl-0 lg:pl-8">
+      <h1 class="text-3xl font-semibold tracking-tight">{photo.title}</h1>
+      <dl class="space-y-6 text-sm text-zinc-600">
+        <div>
+          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Location</dt>
+          <dd class="mt-2">{photo.location}</dd>
+        </div>
+        <div>
+          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Equipment</dt>
+          <dd class="mt-2">{photo.camera}{photo.lens ? ` / ${photo.lens}` : ''}</dd>
+        </div>
+        <div>
+          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Captured On</dt>
+          <dd class="mt-2">{photo.capturedAt}</dd>
+        </div>
+        <div>
+          <dt class="text-[10px] uppercase tracking-[0.3em] text-zinc-400">Tags</dt>
+          <dd class="mt-2 flex flex-wrap gap-2">
+            {photo.tags.map((tag) => <span class="rounded border border-zinc-200 px-2 py-1 text-xs">{tag.name}</span>)}
+          </dd>
+        </div>
+      </dl>
+      <a href="/works" class="inline-flex text-sm text-zinc-500 transition hover:text-zinc-950">Back to works</a>
+    </aside>
+  </main>
+</BaseLayout>

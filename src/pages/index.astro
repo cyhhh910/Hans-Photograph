@@ -1,17 +1,49 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { getAllPhotos } from '../lib/sanity';
 
+const photos = await getAllPhotos();
+const featured = photos.filter((item) => item.isFeatured).concat(photos).slice(0, 5);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout
+  title="Hans Cao Photograph"
+  description="Minimal portfolio website for Hans Cao's photography works."
+>
+  <SiteHeader />
+  <main class="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl grid-cols-1 gap-14 px-6 py-16 lg:grid-cols-2 lg:px-10">
+    <section class="flex flex-col justify-center">
+      <p class="mb-8 inline-flex w-fit rounded-full border border-zinc-200 px-4 py-1 text-xs uppercase tracking-[0.26em] text-zinc-400">
+        Established 2026
+      </p>
+      <h1 class="max-w-xl text-5xl font-black uppercase leading-[0.92] tracking-tight lg:text-7xl">
+        Hans Cao Photograph
+      </h1>
+      <a
+        href="/works"
+        class="mt-14 inline-flex w-fit items-center gap-4 text-xs uppercase tracking-[0.28em] text-zinc-500 transition hover:text-zinc-950"
+      >
+        Enter Gallery
+        <span aria-hidden="true" class="h-px w-16 bg-zinc-300" />
+      </a>
+    </section>
+
+    <section class="grid grid-cols-2 gap-4 lg:gap-5">
+      {
+        featured.map((photo, index) => (
+          <a
+            href={`/photo/${photo.slug}`}
+            class:list={[
+              'overflow-hidden bg-zinc-200',
+              index === 0 ? 'col-span-2' : '',
+              index === 3 ? 'row-span-2' : ''
+            ]}
+          >
+            <img src={photo.imageUrl} alt={photo.title} class="h-full w-full object-cover transition hover:scale-[1.01]" />
+          </a>
+        ))
+      }
+    </section>
+  </main>
+</BaseLayout>

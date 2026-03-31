@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+---
+
+<BaseLayout title="Admin | Hans Cao Photograph" description="Sanity Studio access guide">
+  <SiteHeader />
+  <main class="mx-auto max-w-3xl space-y-8 px-6 py-16 lg:px-10">
+    <h1 class="text-3xl font-semibold tracking-tight">Content Admin</h1>
+    <p class="text-zinc-600">
+      请在项目根目录运行 <code>npm run sanity:dev</code> 打开 Sanity Studio。默认地址为
+      <code>http://localhost:3333</code>。
+    </p>
+    <ol class="list-decimal space-y-3 pl-6 text-zinc-600">
+      <li>首次使用请先执行 <code>npm run sanity:login</code></li>
+      <li>在 Studio 中先创建 <code>tag</code>，再创建 <code>photo</code></li>
+      <li>发布后刷新 <code>/works</code> 即可看到新照片</li>
+    </ol>
+  </main>
+</BaseLayout>

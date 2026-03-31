@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import FilterBar from '../components/FilterBar.astro';
+import PhotoCard from '../components/PhotoCard.astro';
+import { getAllPhotos } from '../lib/sanity';
+
+const photos = await getAllPhotos();
+const selectedTag = Astro.url.searchParams.get('tag') ?? 'all';
+const selectedCity = Astro.url.searchParams.get('city') ?? 'all';
+
+const tagsMap = new Map(photos.flatMap((photo) => photo.tags.map((tag) => [tag.slug, tag.name] as const)));
+const allTags = [{ value: 'all', label: '全部标签' }].concat(
+  [...tagsMap.entries()].map(([value, label]) => ({ value, label }))
+);
+const allCities = [{ value: 'all', label: '全部城市' }].concat(
+  [...new Set(photos.map((photo) => photo.city))].map((city) => ({ value: city, label: city }))
+);
+
+const filtered = photos.filter((photo) => {
+  const tagPass = selectedTag === 'all' || photo.tags.some((tag) => tag.slug === selectedTag);
+  const cityPass = selectedCity === 'all' || photo.city === selectedCity;
+  return tagPass && cityPass;
+});
+---
+
+<BaseLayout title="Works | Hans Cao Photograph" description="Browse photography works by tag and city.">
+  <SiteHeader />
+  <main class="mx-auto max-w-7xl space-y-12 px-6 py-12 lg:px-10">
+    <section class="space-y-8">
+      <h1 class="text-3xl font-semibold tracking-tight">Works</h1>
+      <div class="grid gap-8 lg:grid-cols-2">
+        <FilterBar
+          title="Tag"
+          options={allTags}
+          selected={selectedTag}
+          paramName="tag"
+          preserve={{ city: selectedCity === 'all' ? undefined : selectedCity }}
+        />
+        <FilterBar
+          title="City"
+          options={allCities}
+          selected={selectedCity}
+          paramName="city"
+          preserve={{ tag: selectedTag === 'all' ? undefined : selectedTag }}
+        />
+      </div>
+    </section>
+
+    <section class="columns-1 gap-6 sm:columns-2 lg:columns-3">
+      {filtered.map((photo) => <div class="mb-7"><PhotoCard photo={photo} /></div>)}
+    </section>
+  </main>
+</BaseLayout>

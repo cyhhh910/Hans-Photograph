@@ -1,0 +1,50 @@
+---
+type Props = {
+  title: string;
+  options: Array<{ value: string; label: string }>;
+  selected: string;
+  paramName: string;
+  basePath?: string;
+  preserve?: Record<string, string | undefined>;
+};
+
+const { title, options, selected, paramName, basePath = '/works', preserve = {} } = Astro.props;
+
+function buildHref(value: string) {
+  const params = new URLSearchParams();
+  Object.entries(preserve).forEach(([key, val]) => {
+    if (val) {
+      params.set(key, val);
+    }
+  });
+  if (value !== 'all') {
+    params.set(paramName, value);
+  }
+  const query = params.toString();
+  return query ? `${basePath}?${query}` : basePath;
+}
+---
+
+<section class="space-y-3">
+  <p class="text-xs font-semibold uppercase tracking-[0.26em] text-zinc-400">{title}</p>
+  <div class="flex flex-wrap gap-2">
+    {
+      options.map((option) => {
+        const active = option.value === selected;
+        return (
+          <a
+            href={buildHref(option.value)}
+            class:list={[
+              'rounded-full border px-3 py-1 text-xs transition',
+              active
+                ? 'border-zinc-900 bg-zinc-900 text-zinc-50'
+                : 'border-zinc-200 text-zinc-500 hover:border-zinc-400 hover:text-zinc-900'
+            ]}
+          >
+            {option.label}
+          </a>
+        );
+      })
+    }
+  </div>
+</section>

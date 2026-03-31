@@ -1,0 +1,104 @@
+import { createClient } from '@sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
+import groq from 'groq';
+import { mockPhotos } from '../data/mockPhotos';
+import type { PhotoItem, PhotoTag } from '../types/photo';
+
+const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
+const apiVersion = import.meta.env.PUBLIC_SANITY_API_VERSION ?? '2025-03-01';
+
+const canUseSanity = Boolean(projectId && dataset);
+
+const client = canUseSanity
+  ? createClient({
+      projectId,
+      dataset,
+      apiVersion,
+      useCdn: true
+    })
+  : null;
+
+const imageBuilder = client ? imageUrlBuilder(client) : null;
+
+type SanityTag = {
+  name: string;
+  slug: string;
+  group?: 'city' | 'subject' | 'mood';
+};
+
+type SanityPhoto = {
+  _id: string;
+  title: string;
+  slug: string;
+  image: unknown;
+  location: string;
+  city: string;
+  capturedAt: string;
+  camera: string;
+  lens?: string;
+  description?: string;
+  tags?: SanityTag[];
+  isFeatured?: boolean;
+  sortOrder?: number;
+};
+
+const photoQuery = groq`*[_type == "photo"] | order(sortOrder asc, capturedAt desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  image,
+  location,
+  city,
+  capturedAt,
+  camera,
+  lens,
+  description,
+  isFeatured,
+  sortOrder,
+  "tags": tags[]->{
+    name,
+    "slug": slug.current,
+    group
+  }
+}`;
+
+function toTag(tag: SanityTag): PhotoTag {
+  return {
+    name: tag.name,
+    slug: tag.slug,
+    group: tag.group
+  };
+}
+
+function toPhoto(doc: SanityPhoto): PhotoItem {
+  return {
+    _id: doc._id,
+    title: doc.title,
+    slug: doc.slug,
+    imageUrl: imageBuilder?.image(doc.image).width(1400).quality(85).url() ?? '',
+    location: doc.location,
+    city: doc.city,
+    capturedAt: doc.capturedAt,
+    camera: doc.camera,
+    lens: doc.lens,
+    description: doc.description,
+    tags: (doc.tags ?? []).map(toTag),
+    isFeatured: doc.isFeatured,
+    sortOrder: doc.sortOrder
+  };
+}
+
+export async function getAllPhotos(): Promise<PhotoItem[]> {
+  if (!client || !imageBuilder) {
+    return mockPhotos;
+  }
+
+  const docs = await client.fetch<SanityPhoto[]>(photoQuery);
+  return docs.map(toPhoto);
+}
+
+export async function getPhotoBySlug(slug: string): Promise<PhotoItem | null> {
+  const photos = await getAllPhotos();
+  return photos.find((item) => item.slug === slug) ?? null;
+}

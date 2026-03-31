@@ -1,5 +1,5 @@
 {
-  "name": "sleepy-solstice",
+  "name": "hans-cao-photograph",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -9,9 +9,25 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "sanity:dev": "CHOKIDAR_USEPOLLING=1 dotenv -e .env -- sanity dev --host 0.0.0.0 --port 3333",
+    "sanity:deploy": "dotenv -e .env -- sanity deploy",
+    "sanity:login": "dotenv -e .env -- sanity login"
   },
   "dependencies": {
-    "astro": "^6.1.2"
+    "@sanity/client": "^7.20.0",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^5.18.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "astro": "^6.1.2",
+    "groq": "^5.18.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "sanity": "^5.18.0",
+    "styled-components": "^6.3.12",
+    "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0"
   }
 }
