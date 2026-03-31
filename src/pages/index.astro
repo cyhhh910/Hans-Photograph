@@ -5,8 +5,15 @@ import { getAllPhotos } from '../lib/sanity';
 import { getLocalizedPhotoText } from '../lib/i18n';
 
 const photos = await getAllPhotos();
-const featured = photos.filter((item) => item.isFeatured).concat(photos).slice(0, 5);
 const lang = 'zh';
+const slides = photos.map((photo) => {
+  const text = getLocalizedPhotoText(photo, lang);
+  return {
+    href: `/photo/${photo.slug}`,
+    imageUrl: photo.imageUrl,
+    title: text.title
+  };
+});
 ---
 
 <BaseLayout
@@ -14,44 +21,73 @@ const lang = 'zh';
   description="Minimal portfolio website for Hans Cao's photography works."
 >
   <SiteHeader lang={lang} />
-  <main class="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl grid-cols-1 gap-14 px-6 py-16 lg:grid-cols-2 lg:px-10">
+  <main class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-10 lg:grid-cols-2 lg:items-center lg:gap-10 lg:px-10 lg:py-12">
     <section class="flex flex-col justify-center">
-      <p class="mb-8 inline-flex w-fit rounded-full border border-zinc-200 px-4 py-1 text-xs uppercase tracking-[0.26em] text-zinc-400">
+      <p class="mb-5 inline-flex w-fit rounded-full border border-zinc-200 px-4 py-1.5 text-xs uppercase tracking-[0.24em] text-zinc-400">
         {lang === 'zh' ? '始于 2026' : 'Established 2026'}
       </p>
       <h1
-        class="max-w-xl text-5xl font-black uppercase leading-[0.92] tracking-tight lg:text-7xl"
+        class="max-w-xl text-4xl font-medium uppercase leading-[0.92] tracking-tight lg:text-6xl"
         style="font-family: 'Times New Roman', Times, serif;"
       >
         Hans Cao Photograph
       </h1>
       <a
         href="/works"
-        class="mt-14 inline-flex w-fit items-center gap-4 text-xs uppercase tracking-[0.28em] text-zinc-500 transition hover:text-zinc-950"
+        class="mt-8 inline-flex w-fit items-center gap-3 text-sm uppercase tracking-[0.24em] text-zinc-500 transition hover:text-zinc-950"
       >
         {lang === 'zh' ? '进入作品集' : 'Enter Gallery'}
-        <span aria-hidden="true" class="h-px w-16 bg-zinc-300" />
+        <span aria-hidden="true" class="h-px w-12 bg-zinc-300" />
       </a>
     </section>
 
-    <section class="grid grid-cols-2 gap-4 lg:gap-5">
-      {
-        featured.map((photo, index) => {
-          const text = getLocalizedPhotoText(photo, lang);
-          return (
-            <a
-              href={`/photo/${photo.slug}`}
-              class:list={[
-                'overflow-hidden bg-zinc-200',
-                index === 0 ? 'col-span-2' : '',
-                index === 3 ? 'row-span-2' : ''
-              ]}
-            >
-              <img src={photo.imageUrl} alt={text.title} class="h-full w-full object-cover transition hover:scale-[1.01]" />
-            </a>
-          );
-        })
-      }
+    <section id="home-random-wrap" class="relative flex min-h-[380px] items-center justify-center overflow-hidden lg:h-[78vh] lg:max-h-[760px]">
+      <a id="home-random-link" href={slides[0]?.href ?? '/works'} class="block h-full w-full">
+        <img
+          id="home-random-image"
+          src={slides[0]?.imageUrl ?? '/images/hero-city.png'}
+          alt={slides[0]?.title ?? 'Photo'}
+          class="h-full w-full scale-[1.14] object-contain object-center transition-opacity duration-700"
+        />
+      </a>
     </section>
   </main>
 </BaseLayout>
+
+<script define:vars={{ slides }}>
+  const list = Array.isArray(slides) ? slides : [];
+  const imageEl = document.getElementById('home-random-image');
+  const linkEl = document.getElementById('home-random-link');
+  const wrapEl = document.getElementById('home-random-wrap');
+  if (!imageEl || !linkEl || list.length < 2) {
+    // no-op when there are too few images
+  } else {
+    let current = 0;
+    let paused = false;
+    const pickNext = () => {
+      if (paused) return;
+      let next = current;
+      while (next === current) {
+        next = Math.floor(Math.random() * list.length);
+      }
+      current = next;
+      imageEl.style.opacity = '0.25';
+      window.setTimeout(() => {
+        const item = list[current];
+        imageEl.src = item.imageUrl;
+        imageEl.alt = item.title;
+        linkEl.href = item.href;
+        imageEl.style.opacity = '1';
+      }, 320);
+    };
+    window.setInterval(pickNext, 6500);
+    if (wrapEl) {
+      wrapEl.addEventListener('mouseenter', () => {
+        paused = true;
+      });
+      wrapEl.addEventListener('mouseleave', () => {
+        paused = false;
+      });
+    }
+  }
+</script>

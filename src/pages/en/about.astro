@@ -7,11 +7,33 @@ const lang = 'en';
 
 <BaseLayout title="About | Hans Cao Photograph" description="About Hans Cao and this photography archive.">
   <SiteHeader lang={lang} />
-  <main class="mx-auto max-w-4xl px-6 py-16 lg:px-10">
-    <h1 class="text-4xl font-semibold tracking-tight">About</h1>
-    <div class="mt-8 space-y-6 text-zinc-600">
-      <p>I am Hans Cao, and this site is my long-term photography archive. It follows city, street, and nature themes while collecting work from different years.</p>
-      <p>This site is built with Astro + TailwindCSS, uses Sanity for content management, and is deployed on Vercel. New photographs are published through the Sanity studio.</p>
-    </div>
+  <main class="mx-auto max-w-6xl px-6 py-14 lg:px-10">
+    <section class="grid grid-cols-1 gap-10 lg:grid-cols-[280px_1fr] lg:items-start">
+      <div class="flex justify-center lg:justify-start">
+        <img
+          src="/images/about-avatar.png"
+          alt="Hans profile photo"
+          class="h-52 w-52 rounded-full object-cover object-center lg:h-56 lg:w-56"
+        />
+      </div>
+
+      <div class="space-y-5 text-zinc-700" style="font-family: 'Times New Roman', Times, serif;">
+        <h1 class="text-3xl font-semibold tracking-tight">Welcome to Hans's Photography !</h1>
+
+        <p class="text-xl leading-relaxed">🆔: Law School Student, Photography lovers.</p>
+        <p class="text-xl leading-relaxed">📍: 🇨🇳Beijing; 🇲🇴Macau</p>
+        <p class="text-xl leading-relaxed">📸: Capturing Light, Humanistic, Scenery, Story and Everyday moments etc.</p>
+        <p class="text-xl leading-relaxed">📷: iPhone x Fujifilm x Canon</p>
+
+        <p class="text-xl leading-relaxed">
+          This website is my personal archive - here to record and organise photos.
+        </p>
+
+        <p class="text-xl leading-relaxed">
+          Visit the <a href="/en/works" class="font-semibold underline underline-offset-4">Works</a> page to see my collection.
+          You can click any photo for details: location, date, equipment, and more.
+        </p>
+      </div>
+    </section>
   </main>
 </BaseLayout>

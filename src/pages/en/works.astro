@@ -8,10 +8,13 @@ import { getLocalizedPhotoText, getLocalizedTagName } from '../../lib/i18n';
 
 const photos = await getAllPhotos();
 const lang = 'en';
-const selectedTag = Astro.url.searchParams.get('tag') ?? 'all';
-const selectedCity = Astro.url.searchParams.get('city') ?? 'all';
-
-const tagsMap = new Map(photos.flatMap((photo) => photo.tags.map((tag) => [tag.slug, getLocalizedTagName(tag, lang)] as const)));
+const tagsMap = new Map(
+  photos.flatMap((photo) =>
+    photo.tags
+      .filter((tag) => (tag.group ?? 'subject') === 'subject')
+      .map((tag) => [tag.slug, getLocalizedTagName(tag, lang)] as const)
+  )
+);
 const allTags = [{ value: 'all', label: 'All Tags' }].concat(
   [...tagsMap.entries()].map(([value, label]) => ({ value, label }))
 );
@@ -20,40 +23,105 @@ const allCities = [{ value: 'all', label: 'All Cities' }].concat(
   [...cityMap.entries()].map(([value, label]) => ({ value, label }))
 );
 
-const filtered = photos.filter((photo) => {
-  const tagPass = selectedTag === 'all' || photo.tags.some((tag) => tag.slug === selectedTag);
-  const cityPass = selectedCity === 'all' || photo.city === selectedCity;
-  return tagPass && cityPass;
-});
 ---
 
 <BaseLayout title="Works | Hans Cao Photograph" description="Browse photography works by tag and city.">
   <SiteHeader lang={lang} />
-  <main class="mx-auto max-w-7xl space-y-12 px-6 py-12 lg:px-10">
-    <section class="space-y-8">
-      <h1 class="text-3xl font-semibold tracking-tight">Works</h1>
-      <div class="grid gap-8 lg:grid-cols-2">
+  <main class="mx-auto max-w-7xl space-y-6 px-6 py-6 lg:px-10 lg:py-5">
+    <section class="space-y-4">
+      <h1 class="text-2xl font-semibold tracking-tight">Works</h1>
+      <div class="grid gap-4 lg:grid-cols-2">
         <FilterBar
           title="Tag"
           options={allTags}
-          selected={selectedTag}
+          selected="all"
           paramName="tag"
           basePath="/en/works"
-          preserve={{ city: selectedCity === 'all' ? undefined : selectedCity }}
+          preserve={{}}
         />
         <FilterBar
           title="City"
           options={allCities}
-          selected={selectedCity}
+          selected="all"
           paramName="city"
           basePath="/en/works"
-          preserve={{ tag: selectedTag === 'all' ? undefined : selectedTag }}
+          preserve={{}}
         />
       </div>
     </section>
 
-    <section class="columns-1 gap-6 sm:columns-2 lg:columns-3">
-      {filtered.map((photo) => <div class="mb-7"><PhotoCard photo={photo} lang={lang} basePath="/en" /></div>)}
+    <section class="columns-2 gap-4 lg:columns-4">
+      {
+        photos.map((photo) => (
+          <div
+            class="mb-4 filter-item"
+            data-photo-city={photo.city}
+            data-photo-tags={photo.tags
+              .filter((tag) => (tag.group ?? 'subject') === 'subject')
+              .map((tag) => tag.slug)
+              .join(',')}
+          >
+            <PhotoCard photo={photo} lang={lang} basePath="/en" />
+          </div>
+        ))
+      }
     </section>
   </main>
 </BaseLayout>
+
+<script>
+  const chips = Array.from(document.querySelectorAll('[data-filter-param][data-filter-value]'));
+  const items = Array.from(document.querySelectorAll('.filter-item'));
+
+  const activeChipClasses = ['border-zinc-900', 'bg-zinc-50', 'text-zinc-900'];
+  const idleChipClasses = ['border-zinc-200', 'text-zinc-500'];
+
+  function updateFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const selectedTag = params.get('tag') ?? 'all';
+    const selectedCity = params.get('city') ?? 'all';
+
+    chips.forEach((chip) => {
+      const param = chip.getAttribute('data-filter-param');
+      const value = chip.getAttribute('data-filter-value');
+      const selected = (param === 'tag' && value === selectedTag) || (param === 'city' && value === selectedCity);
+
+      chip.classList.remove(...activeChipClasses, ...idleChipClasses);
+      if (selected) {
+        chip.classList.add(...activeChipClasses);
+      } else {
+        chip.classList.add(...idleChipClasses);
+      }
+    });
+
+    items.forEach((item) => {
+      const city = item.getAttribute('data-photo-city') ?? '';
+      const tags = (item.getAttribute('data-photo-tags') ?? '').split(',').filter(Boolean);
+      const tagPass = selectedTag === 'all' || tags.includes(selectedTag);
+      const cityPass = selectedCity === 'all' || city === selectedCity;
+      item.style.display = tagPass && cityPass ? '' : 'none';
+    });
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', (event) => {
+      event.preventDefault();
+      const param = chip.getAttribute('data-filter-param');
+      const value = chip.getAttribute('data-filter-value');
+      if (!param || !value) return;
+      const params = new URLSearchParams(window.location.search);
+      if (value === 'all') {
+        params.delete(param);
+      } else {
+        params.set(param, value);
+      }
+      const query = params.toString();
+      const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+      window.history.pushState({}, '', nextUrl);
+      updateFromQuery();
+    });
+  });
+
+  window.addEventListener('popstate', updateFromQuery);
+  updateFromQuery();
+</script>

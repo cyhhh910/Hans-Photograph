@@ -34,10 +34,12 @@ function buildHref(value: string) {
         return (
           <a
             href={buildHref(option.value)}
+            data-filter-param={paramName}
+            data-filter-value={option.value}
             class:list={[
-              'rounded-full border px-3 py-1 text-xs transition',
+              'rounded-full border px-3 py-1 text-xs transition filter-chip',
               active
-                ? 'border-zinc-900 bg-zinc-900 text-zinc-50'
+                ? 'border-zinc-900 bg-zinc-50 text-zinc-900'
                 : 'border-zinc-200 text-zinc-500 hover:border-zinc-400 hover:text-zinc-900'
             ]}
           >

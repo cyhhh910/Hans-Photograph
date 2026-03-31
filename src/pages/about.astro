@@ -9,22 +9,32 @@ const lang = 'zh';
   description="About Hans Cao and this photography archive."
 >
   <SiteHeader lang={lang} />
-  <main class="mx-auto max-w-4xl px-6 py-16 lg:px-10">
-    <h1 class="text-4xl font-semibold tracking-tight">{lang === 'zh' ? '关于' : 'About'}</h1>
-    <div class="mt-8 space-y-6 text-zinc-600">
-      {
-        lang === 'zh' ? (
-          <>
-            <p>我是 Hans Cao，这里是我的长期摄影档案。网站以城市、街头与自然为主线，持续整理我历年的影像作品。</p>
-            <p>这个站点使用 Astro + TailwindCSS 构建，内容由 Sanity 统一管理，部署在 Vercel。后续新增照片将通过 Sanity 后台直接发布。</p>
-          </>
-        ) : (
-          <>
-            <p>I am Hans Cao, and this site is my long-term photography archive. It follows city, street, and nature themes while collecting work from different years.</p>
-            <p>This site is built with Astro + TailwindCSS, uses Sanity for content management, and is deployed on Vercel. New photographs are published through the Sanity studio.</p>
-          </>
-        )
-      }
-    </div>
+  <main class="mx-auto max-w-6xl px-6 py-14 lg:px-10">
+    <section class="grid grid-cols-1 gap-10 lg:grid-cols-[280px_1fr] lg:items-start">
+      <div class="flex justify-center lg:justify-start">
+        <img
+          src="/images/about-avatar.png"
+          alt="Hans 头像"
+          class="h-52 w-52 rounded-full object-cover object-center lg:h-56 lg:w-56"
+        />
+      </div>
+
+      <div class="space-y-5 text-zinc-700" style="font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', serif;">
+        <h1 class="text-3xl font-semibold tracking-tight">欢迎来到 Hans 的摄影网站！</h1>
+
+        <p class="text-xl leading-relaxed">🆔：法学生，摄影爱好者。</p>
+        <p class="text-xl leading-relaxed">📍：🇨🇳北京；🇲🇴澳门</p>
+        <p class="text-xl leading-relaxed">📸：记录光影、人文、风光、故事与日常瞬间等。</p>
+        <p class="text-xl leading-relaxed">📷：iPhone x Fujifilm x Canon</p>
+
+        <p class="text-xl leading-relaxed">这个网站是我的个人影像档案，用来持续记录和整理摄影作品。</p>
+
+        <p class="text-xl leading-relaxed">
+          欢迎访问
+          <a href="/works" class="font-semibold underline underline-offset-4">作品页</a>
+          查看我的收藏。你也可以点击任意照片查看详情：地点、时间、器材等信息。
+        </p>
+      </div>
+    </section>
   </main>
 </BaseLayout>
