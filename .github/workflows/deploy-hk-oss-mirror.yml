@@ -1,0 +1,70 @@
+# Optional mirror: sync static dist to Alibaba Cloud OSS (Hong Kong region).
+# Enable with repository variable OSS_MIRROR_ENABLED = true (Settings → Secrets and variables → Actions → Variables).
+# Setup: see .github/DEPLOY_HK_OSS.md
+
+name: Deploy HK OSS mirror
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-hk-oss-mirror
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    if: vars.OSS_MIRROR_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      ALIBABA_OSS_BUCKET: ${{ secrets.ALIBABA_OSS_BUCKET }}
+      ALIBABA_OSS_PREFIX: ${{ vars.ALIBABA_OSS_PREFIX }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        env:
+          PUBLIC_SANITY_PROJECT_ID: ${{ secrets.PUBLIC_SANITY_PROJECT_ID }}
+          PUBLIC_SANITY_DATASET: ${{ secrets.PUBLIC_SANITY_DATASET }}
+          PUBLIC_SANITY_API_VERSION: ${{ secrets.PUBLIC_SANITY_API_VERSION }}
+        run: npm run build
+
+      - name: Install ossutil
+        env:
+          OSSUTIL_VERSION: 1.7.19
+        run: |
+          curl -fsSL "https://gosspublic.alicdn.com/ossutil/${OSSUTIL_VERSION}/ossutil-v${OSSUTIL_VERSION}-linux-amd64.zip" -o ossutil.zip
+          unzip -q ossutil.zip
+          sudo install -m 755 "ossutil-v${OSSUTIL_VERSION}-linux-amd64/ossutil" /usr/local/bin/ossutil
+
+      - name: Configure ossutil
+        env:
+          ALIBABA_OSS_ACCESS_KEY_ID: ${{ secrets.ALIBABA_OSS_ACCESS_KEY_ID }}
+          ALIBABA_OSS_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_OSS_ACCESS_KEY_SECRET }}
+          ALIBABA_OSS_ENDPOINT: ${{ vars.ALIBABA_OSS_ENDPOINT }}
+        run: |
+          ENDPOINT="${ALIBABA_OSS_ENDPOINT:-oss-cn-hongkong.aliyuncs.com}"
+          ossutil config -i "$ALIBABA_OSS_ACCESS_KEY_ID" -k "$ALIBABA_OSS_ACCESS_KEY_SECRET" -e "$ENDPOINT" -L CH
+
+      - name: Sync dist to OSS
+        run: |
+          DEST="oss://${ALIBABA_OSS_BUCKET}/"
+          if [ -n "$ALIBABA_OSS_PREFIX" ]; then
+            DEST="oss://${ALIBABA_OSS_BUCKET}/${ALIBABA_OSS_PREFIX#/}"
+            DEST="${DEST%/}/"
+          fi
+          echo "Syncing dist/ → ${DEST}"
+          ossutil sync dist/ "$DEST" -f --delete -j 10
