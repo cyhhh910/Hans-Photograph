@@ -8,6 +8,11 @@ import { getLocalizedPhotoText, getLocalizedTagName } from '../../lib/i18n';
 
 const photos = await getAllPhotos();
 const lang = 'en';
+const photosSorted = [...photos].sort((a, b) =>
+  getLocalizedPhotoText(a, lang).title.localeCompare(getLocalizedPhotoText(b, lang).title, 'en', {
+    sensitivity: 'base'
+  })
+);
 const tagsMap = new Map(
   photos.flatMap((photo) =>
     photo.tags
@@ -50,11 +55,11 @@ const allCities = [{ value: 'all', label: 'All Cities' }].concat(
       </div>
     </section>
 
-    <section class="columns-2 gap-4 lg:columns-4">
+    <section class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
       {
-        photos.map((photo) => (
+        photosSorted.map((photo) => (
           <div
-            class="mb-4 filter-item"
+            class="filter-item"
             data-photo-city={photo.city}
             data-photo-tags={photo.tags
               .filter((tag) => (tag.group ?? 'subject') === 'subject')

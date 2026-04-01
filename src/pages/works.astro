@@ -8,6 +8,8 @@ import { getLocalizedPhotoText, getLocalizedTagName } from '../lib/i18n';
 
 const photos = await getAllPhotos();
 const lang = 'zh';
+const getSortTitle = (photo: (typeof photos)[number]) => photo.titleEn?.trim() || getLocalizedPhotoText(photo, lang).title;
+const photosSorted = [...photos].sort((a, b) => getSortTitle(a).localeCompare(getSortTitle(b), 'en', { sensitivity: 'base' }));
 const tagsMap = new Map(
   photos.flatMap((photo) =>
     photo.tags
@@ -48,11 +50,11 @@ const allCities = [{ value: 'all', label: lang === 'zh' ? '全部城市' : 'All 
       </div>
     </section>
 
-    <section class="columns-2 gap-4 lg:columns-4">
+    <section class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
       {
-        photos.map((photo) => (
+        photosSorted.map((photo) => (
           <div
-            class="mb-4 filter-item"
+            class="filter-item"
             data-photo-city={photo.city}
             data-photo-tags={photo.tags
               .filter((tag) => (tag.group ?? 'subject') === 'subject')
