@@ -3,6 +3,7 @@ import { createImageUrlBuilder } from '@sanity/image-url';
 import groq from 'groq';
 import { mockPhotos } from '../data/mockPhotos';
 import type { PhotoItem, PhotoTag } from '../types/photo';
+import { normalizeSlug } from './slug';
 
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
@@ -94,12 +95,13 @@ function toTag(tag: SanityTag): PhotoTag {
 }
 
 function toPhoto(doc: SanityPhoto): PhotoItem {
+  const slug = normalizeSlug(doc.slug) || doc._id.replace(/^drafts\./, '');
   return {
     _id: doc._id,
     title: doc.title,
     titleZh: doc.titleZh,
     titleEn: doc.titleEn,
-    slug: doc.slug,
+    slug,
     imageUrl: imageBuilder?.image(doc.image).width(1400).quality(85).url() ?? '',
     location: doc.location,
     locationZh: doc.locationZh,
@@ -130,5 +132,6 @@ export async function getAllPhotos(): Promise<PhotoItem[]> {
 
 export async function getPhotoBySlug(slug: string): Promise<PhotoItem | null> {
   const photos = await getAllPhotos();
-  return photos.find((item) => item.slug === slug) ?? null;
+  const key = normalizeSlug(slug);
+  return photos.find((item) => item.slug === key) ?? null;
 }

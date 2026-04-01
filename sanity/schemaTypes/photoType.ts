@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity';
+import { normalizeSlug } from '../../src/lib/slug';
 
 export const photoType = defineType({
   name: 'photo',
@@ -12,7 +13,12 @@ export const photoType = defineType({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      options: { source: 'title', maxLength: 96 },
+      options: {
+        source: 'title',
+        maxLength: 96,
+        slugify: (input) =>
+          normalizeSlug(String(input).toLowerCase().trim()).slice(0, 96)
+      },
       validation: (rule) => rule.required()
     }),
     defineField({ name: 'image', title: 'Image', type: 'image', options: { hotspot: true }, validation: (rule) => rule.required() }),
