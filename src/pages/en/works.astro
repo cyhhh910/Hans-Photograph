@@ -24,7 +24,7 @@ const allTags = [{ value: 'all', label: 'All Tags' }].concat(
   [...tagsMap.entries()].map(([value, label]) => ({ value, label }))
 );
 const cityMap = new Map(photos.map((photo) => [photo.city, getLocalizedPhotoText(photo, lang).city] as const));
-const allCities = [{ value: 'all', label: 'All Cities' }].concat(
+const allCities = [{ value: 'all', label: 'All Locations' }].concat(
   [...cityMap.entries()].map(([value, label]) => ({ value, label }))
 );
 
@@ -45,7 +45,7 @@ const allCities = [{ value: 'all', label: 'All Cities' }].concat(
           preserve={{}}
         />
         <FilterBar
-          title="City"
+          title="Location"
           options={allCities}
           selected="all"
           paramName="city"

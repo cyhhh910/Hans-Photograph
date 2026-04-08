@@ -21,7 +21,7 @@ const allTags = [{ value: 'all', label: lang === 'zh' ? '全部题材' : 'All Ta
   [...tagsMap.entries()].map(([value, label]) => ({ value, label }))
 );
 const cityMap = new Map(photos.map((photo) => [photo.city, getLocalizedPhotoText(photo, lang).city] as const));
-const allCities = [{ value: 'all', label: lang === 'zh' ? '全部城市' : 'All Cities' }].concat(
+const allCities = [{ value: 'all', label: lang === 'zh' ? '全部地点' : 'All Locations' }].concat(
   [...cityMap.entries()].map(([value, label]) => ({ value, label }))
 );
 
@@ -41,7 +41,7 @@ const allCities = [{ value: 'all', label: lang === 'zh' ? '全部城市' : 'All 
           preserve={{}}
         />
         <FilterBar
-          title={lang === 'zh' ? '城市' : 'City'}
+          title={lang === 'zh' ? '地点' : 'Location'}
           options={allCities}
           selected="all"
           paramName="city"
