@@ -11,6 +11,10 @@ type Props = {
 
 const { photo, lang = 'zh', basePath = '' } = Astro.props;
 const text = getLocalizedPhotoText(photo, lang);
+const displayLocation =
+  lang === 'en'
+    ? text.location.toLowerCase().replace(/\b[a-z]/g, (char) => char.toUpperCase())
+    : text.location;
 ---
 
 <article class="group break-inside-avoid">
@@ -25,7 +29,7 @@ const text = getLocalizedPhotoText(photo, lang);
   <div class="mt-2 flex items-start justify-between gap-3">
     <div>
       <h3 class="text-sm font-medium">{text.title}</h3>
-      <p class="mt-1 text-[10px] uppercase tracking-[0.22em] text-zinc-500">{text.location}</p>
+      <p class="mt-1 text-[10px] tracking-[0.22em] text-zinc-500">{displayLocation}</p>
     </div>
     <p class="text-[10px] text-zinc-500">{photo.capturedAt}</p>
   </div>
