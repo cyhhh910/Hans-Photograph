@@ -16,7 +16,8 @@ const client = canUseSanity
       projectId,
       dataset,
       apiVersion,
-      useCdn: true
+      // Use fresh API reads during static build to avoid list/detail route mismatch.
+      useCdn: false
     })
   : null;
 
