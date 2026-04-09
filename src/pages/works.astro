@@ -10,19 +10,28 @@ const photos = await getAllPhotos();
 const lang = 'zh';
 const getSortTitle = (photo: (typeof photos)[number]) => photo.titleEn?.trim() || getLocalizedPhotoText(photo, lang).title;
 const photosSorted = [...photos].sort((a, b) => getSortTitle(a).localeCompare(getSortTitle(b), 'en', { sensitivity: 'base' }));
-const tagsMap = new Map(
+const tagLabelPairs = new Map(
   photos.flatMap((photo) =>
     photo.tags
       .filter((tag) => (tag.group ?? 'subject') === 'subject')
-      .map((tag) => [tag.slug, getLocalizedTagName(tag, lang)] as const)
+      .map((tag) => [tag.slug, { zh: getLocalizedTagName(tag, 'zh'), en: getLocalizedTagName(tag, 'en') }] as const)
   )
 );
-const allTags = [{ value: 'all', label: lang === 'zh' ? '全部题材' : 'All Tags' }].concat(
-  [...tagsMap.entries()].map(([value, label]) => ({ value, label }))
+const allTags = [{ value: 'all', label: '全部题材' }].concat(
+  [...tagLabelPairs.entries()]
+    .sort((a, b) => a[1].en.localeCompare(b[1].en, 'en', { sensitivity: 'base' }))
+    .map(([value, label]) => ({ value, label: label.zh }))
 );
-const cityMap = new Map(photos.map((photo) => [photo.city, getLocalizedPhotoText(photo, lang).city] as const));
-const allCities = [{ value: 'all', label: lang === 'zh' ? '全部地点' : 'All Locations' }].concat(
-  [...cityMap.entries()].map(([value, label]) => ({ value, label }))
+const cityLabelPairs = new Map(
+  photos.map((photo) => [
+    photo.city,
+    { zh: getLocalizedPhotoText(photo, 'zh').city, en: getLocalizedPhotoText(photo, 'en').city }
+  ] as const)
+);
+const allCities = [{ value: 'all', label: '全部地点' }].concat(
+  [...cityLabelPairs.entries()]
+    .sort((a, b) => a[1].en.localeCompare(b[1].en, 'en', { sensitivity: 'base' }))
+    .map(([value, label]) => ({ value, label: label.zh }))
 );
 
 ---
